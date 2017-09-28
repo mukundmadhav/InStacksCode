@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">InStacks</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="Complete">Complete</string>
+    <string name="Idele">Idele</string>
+    <string name="helpdes">Hey there! Confused how to use the app? The video below shall assist you in copying and pasting Instagram Profile URL!</string>
+</resources>
