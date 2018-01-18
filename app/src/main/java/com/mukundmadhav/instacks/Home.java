@@ -1,12 +1,12 @@
 package com.mukundmadhav.instacks;
 
 
-import android.content.Context;
-import android.content.Intent;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,82 +16,99 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-
-import com.dd.CircularProgressButton;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import java.io.InputStream;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Home extends Fragment {
 
+
     String Code = "";
     String fullProfilePicURL = "";
     static String spp = "";
+    ProgressDialog mProgressDialog;
     String parts2[];
+    View v;
 
-    public void imageDownload(Context ctx, String url){
+    
 
-        Target targetn= getTarget(url);
-        Picasso.with(ctx)
-                .load(spp)
-                .into(targetn);
-        circularProgressButton.setProgress(100);
-        File file1 = new File(Environment.getExternalStorageDirectory().getPath() +"/InStacks" + "/" + url);
-        new SingleMediaScanner(getActivity(),file1);
+    private void SaveImage(Bitmap finalBitmap) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/InStacks");
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-"+ n +".jpg";
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        new SingleMediaScanner(getActivity(),file);
+        Toast.makeText(getActivity(), " Image Saved to InStacks", Toast.LENGTH_LONG).show();
     }
 
-    CircularProgressButton circularProgressButton;
+    private class DownloadImage extends AsyncTask<String,Void,Bitmap> {
 
-    //Using the Picasso Target Class
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mProgressDialog = new ProgressDialog(getActivity());
+            // Set progressdialog title
+            mProgressDialog.setTitle("Downloading Image");
+            // Set progressdialog message
+            mProgressDialog.setMessage("Loading...");
+            mProgressDialog.setIndeterminate(false);
+            // Show progressdialog
+            mProgressDialog.show();
+        }
 
-    private Target getTarget(String url){
-        final String temp = url;
-        Target target = new Target(){
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            String imageURL = strings[0];
 
-            @Override
-            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        File file = new File(Environment.getExternalStorageDirectory().getPath() +"/InStacks" + "/" + temp);
-                        try {
-                            file.createNewFile();
-                            FileOutputStream ostream = new FileOutputStream(file);
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, ostream);
-                            ostream.flush();
-                            ostream.close();
-                        } catch (IOException e) {
-                            Log.e("IOException", e.getLocalizedMessage());
-                        }
-                    }
-                }).start();
-
+            Bitmap bitmap = null;
+            try {
+                // Download Image from URL
+                InputStream input = new java.net.URL(imageURL).openStream();
+                // Decode Bitmap
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            return bitmap;
+        }
 
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+            SaveImage(bitmap);
+            mProgressDialog.dismiss();
 
-            }
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageView4);
+            imageView.setImageBitmap(bitmap);
 
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        };
-        return target;
+        }
     }
 
     public String fetchProfileURL (String sourceCode) {
+
          fullProfilePicURL = "";
         String ppURL = "";
         Pattern p = Pattern.compile("\"profile_pic_url_hd\": \"(.*?)\"");
@@ -111,7 +128,7 @@ public class Home extends Fragment {
                 fullProfilePicURL = parts[0] + parts[1];
                 Log.i("Parts:",fullProfilePicURL);
                 spp = fullProfilePicURL;
-                imageDownload(getActivity(),parts2[1]+".jpg");
+                new DownloadImage().execute(spp);
                 Log.i("Into?","Yes");
                 Log.i("Going?","spp");
 
@@ -124,60 +141,89 @@ public class Home extends Fragment {
 
 
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View v =inflater.inflate(R.layout.home_layout,container,false);
+        v =inflater.inflate(R.layout.home_layout,container,false);
+
+
 
         final String inputaURL = " ";
 
 
+
+
         final EditText urlSPace = (EditText) v.findViewById(R.id.edit_URL);
 
-        //https://www.instagram.com/casianandews
-
-
-
         Button GoButton = (Button) v.findViewById(R.id.GoButton);
-        circularProgressButton = (CircularProgressButton) v.findViewById(R.id.btnWithText);
         Button ReButton = (Button) v.findViewById(R.id.ResetButton);
-         final TextView textView = (TextView) v.findViewById(R.id.textView);
+        final TextView textView = (TextView) v.findViewById(R.id.textView);
         ReButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                circularProgressButton.setProgress(100);
+                urlSPace.setText("");
             }
         });
 
-        circularProgressButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                circularProgressButton.setProgress(30);
-            }
-        });
+        final View vz = v;
+
+        String url = "https://instagram.com/casianandews/";
+
 
         GoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //String inputURL = inputaURL;
-                textView.setText("Loading");
-                circularProgressButton.setProgress(1);
-                String inputURL = urlSPace.getText().toString();
-                parts2 = inputURL.split(".com/");
-                Log.i("Part1:",parts2[0]);
-                Log.i("Part2 :",parts2[1]);
-                MyAsyncTask myAsyncTask = new MyAsyncTask();
-                try {
-                    Code = myAsyncTask.execute(inputURL).get();
-                    Log.i("COde: ", Code);
-                    Log.i("Profile Pic : ", fetchProfileURL(Code));
-                    circularProgressButton.setProgress(50);
-                    textView.setVisibility(View.INVISIBLE);
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                String username = urlSPace.getText().toString();
+                String usernameURL = "https://www.instagram.com/"+username;
+
+
+                if(username.matches("")) {
+                    final Snackbar snakbar = Snackbar.make(vz,"Please Enter Something.", Snackbar.LENGTH_SHORT);
+                    snakbar.show();
+
+                }
+
+                else {
+
+
+                    if (MainActivity.isConnectedToNet == true) {
+                        //String inputURL = inputaURL;
+
+                        String inputURL = usernameURL;
+                        try {
+                            parts2 = inputURL.split(".com/");
+                            Log.i("Part1:", parts2[0]);
+                            Log.i("Part2 :", parts2[1]);
+                        }
+                        catch(Exception e) {
+                            final Snackbar sbar = Snackbar.make(vz,"Invalid URL.", Snackbar.LENGTH_SHORT);
+                            sbar.show();
+
+                        }
+                        MyAsyncTask myAsyncTask = new MyAsyncTask();
+                        try {
+                            Code = myAsyncTask.execute(inputURL).get();
+                            Log.i("Profile Pic : ", fetchProfileURL(Code));
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            final Snackbar sbar = Snackbar.make(vz,"Invalid Username.", Snackbar.LENGTH_LONG);
+                            sbar.show();
+                        }
+
+                    } else {
+                        final Snackbar snakbar = Snackbar.make(vz, "No Internet Connection! Please connect and restart the app.", Snackbar.LENGTH_INDEFINITE);
+                        snakbar.setAction("Dismiss", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                snakbar.dismiss();
+                            }
+                        });
+                        snakbar.show();
+                    }
                 }
 
             }
@@ -189,6 +235,8 @@ public class Home extends Fragment {
         return v;
 
     }
+
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {

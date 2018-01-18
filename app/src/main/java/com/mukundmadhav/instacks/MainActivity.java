@@ -1,18 +1,25 @@
 package com.mukundmadhav.instacks;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,14 +29,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
+
 
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     File fooo;
+    public static boolean isConnectedToNet = false;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -53,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -65,12 +72,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         selectedMenuDisplay(R.id.nav_home);
 
 
+
+
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
         }
 
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},2);
+        }
+
+        ConnectivityManager connManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            Log.i("H", "Perfect! You have a stable internet!");
+            isConnectedToNet = true;
+        }
+        else{
+            Log.i("H", "You poor fella");
         }
 
     }
@@ -127,15 +148,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new Home();
                 break;
             case R.id.nav_gallery:
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                Toast.makeText(this, "Look for a folder named \"InStacks\" ", Toast.LENGTH_LONG).show();
-                intent.setType("image/*");
+                Intent intent = new Intent(MainActivity.this,Gallery.class);
                 startActivity(intent);
                 break;
             case R.id.nav_help:
-                Intent intent1 = new Intent(MainActivity.this,HelpLayout.class);
-                startActivity(intent1);
+                fragment = new Help();
                 break;
+
+            case R.id.nav_rate_app:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.mukundmadhav.instacks"));
+                startActivity(browserIntent);
+                break;
+            case R.id.nav_code:
+                Intent bIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/mukundmadhav/"));
+                startActivity(bIntent);
+            break;
+
         }
         if(fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

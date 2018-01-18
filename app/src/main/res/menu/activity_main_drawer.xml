@@ -16,6 +16,18 @@
             android:icon="@drawable/ic_menu_manage"
             android:title="Help" />
     </group>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_rate_app"
+            android:icon="@drawable/icon_rate"
+            android:title="Rate App" />
+        <item
+            android:id="@+id/nav_code"
+            android:icon="@drawable/code"
+            android:title="View Code" />
+
+    </group>
+
 
 
 </menu>

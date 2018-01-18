@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
 
     <LinearLayout
@@ -17,36 +18,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="40dp"
-            android:layout_marginTop="20dp">
+            >
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="64dp"
                 android:layout_weight="1"
-                android:text="No URL Entered"
+                android:text="Enter a Username below:"
                 android:textSize="24sp"
-                android:layout_marginTop="-13dp"
                 />
 
-            <com.dd.CircularProgressButton
-                android:id="@+id/btnWithText"
-                android:layout_width="wrap_content"
-                android:layout_height="64dp"
-                android:layout_marginBottom="11dp"
-                android:layout_marginEnd="71dp"
-                android:textColor="@color/cpb_white"
-                android:textSize="18sp"
-                app:cpb_colorIndicator="@color/cpb_blue"
-                app:cpb_colorIndicatorBackground="@color/cpb_grey"
-                app:cpb_colorProgress="@color/cpb_white"
-                app:cpb_selectorIdle="@drawable/idle_state_selector"
-                app:cpb_textComplete="Complete"
-                app:cpb_textError="Error"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                app:cpb_textIdle="Enter Below.." />
         </LinearLayout>
 
         <EditText
@@ -55,13 +37,14 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="10dp"
             />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
 
             <Button
                 android:id="@+id/GoButton"
@@ -79,5 +62,14 @@
                 android:layout_weight="1"
                 android:text="Reset" />
         </LinearLayout>
+
+
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/cpb_background" />
+
     </LinearLayout>
 </RelativeLayout>
