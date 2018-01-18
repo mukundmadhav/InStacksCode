@@ -8,3 +8,5 @@ Feel free to explore the code and ping me (or why not fork and fix :P) if you en
 
 Please, Note:
 You can watch, star or fork to create better versions of the app but you are not allowed to publish a copy or forked version without explicit permission.
+
+Download app from Google Play: https://play.google.com/store/apps/details?id=com.mukundmadhav.instacks
