@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(browserIntent);
                 break;
             case R.id.nav_code:
-                Intent bIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/mukundmadhav/"));
+                Intent bIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/mukundmadhav/InStacksCode"));
                 startActivity(bIntent);
             break;
 
